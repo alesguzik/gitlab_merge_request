@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+require 'uri'
+require 'awesome_print'
+
+def git_config(key)
+  value = `git config --get #{key}`
+  if value.empty?
+    value = yield(key)
+    puts "Set #{key} = #{value}"
+    system "git config #{key} #{value}"
+  end
+  value
+end
+
+ssh_url = URI(`git config --get remote.origin.url`)
+api_endpoint = git_config 'gitlab.api-endpoint' do
+  "http://#{ssh_url.host}/api/v3/"
+end
+ENV['GITLAB_API_ENDPOINT'] = api_endpoint
+
+token = git_config 'gitlab.private-token' do |key|
+  puts <<-EOF
+    Please run:
+      git config #{key} YOUR_TOKEN
+    You can get your token at http://#{URI(api_endpoint).host}/profile/account
+  EOF
+  exit 1
+end
+ENV['GITLAB_API_PRIVATE_TOKEN'] = token
+
+require 'gitlab'
+
+project_id = git_config 'gitlab.project-id' do
+  Gitlab.projects.select{|prj| prj.ssh_url_to_repo == ssh_url.to_s}.first.id
+end
+
+source_branch = %x(git rev-parse --abbrev-ref HEAD).chomp
+target_branch = git_config 'gitlab.merge-request-target' do
+  Gitlab.project(project_id).default_branch
+end
+
+task_url_template = git_config 'gitlab.task-url-template' do
+  "http://jira.softswiss.com/browse/CASINO-%s"
+end
+
+print "Creating merge request.
+
+From: #{source_branch}
+To: #{target_branch}
+Title: "
+title = gets.chomp
+task_id = $1 if source_branch.match(/\At(\d+)_/)
+
+if task_id
+  note_text = "#{task_url_template % task_id}\n"
+end
+
+print "Text:
+#{note_text}"
+additional_text = STDIN.read.chomp
+note_text = (note_text.to_s + additional_text).chomp
+
+puts "Going to create merge request with following data (blank note will not be created):"
+ap source_branch: source_branch,
+   target_branch: target_branch,
+   title: title,
+   note_text: note_text
+puts "Proceed? [Y/n]"
+answer = gets
+
+case answer
+when nil,/[Nn]/
+  puts "Merge request aborted"
+when "\n", /[Yy]/
+  mr = Gitlab.create_merge_request(
+       project_id,
+       title,
+       source_branch: source_branch,
+       target_branch: target_branch)
+  Gitlab.create_note("#{project_id}/merge_requests/#{mr.id}", note_text) unless note_text.blank?
+  mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.id}"
+  puts "Created merge request: #{mr_url}"
+end
