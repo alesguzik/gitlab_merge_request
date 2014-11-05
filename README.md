@@ -1,30 +1,22 @@
 # GitlabMergeRequest
 
-TODO: Write a gem description
+Create GitLab merge requests from command line.
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'gitlab_merge_request'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install gitlab_merge_request
 
 ## Usage
 
-TODO: Write usage instructions here
+Run
+
+    $ git mr
+
+and follow the instructions.
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/gitlab_merge_request/fork )
+1. Fork it ( https://github.com/alesguzik/gitlab_merge_request/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
