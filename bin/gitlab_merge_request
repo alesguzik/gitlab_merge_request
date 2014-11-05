@@ -55,7 +55,7 @@ if task_id
   description = "#{task_url_template % task_id}\n"
 end
 
-print "Text:
+print "Text (hit Ctrl+D at the beginning of line to finish):
 #{description}"
 additional_text = STDIN.read.chomp
 description = (description.to_s + additional_text).chomp
