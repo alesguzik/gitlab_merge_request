@@ -52,19 +52,19 @@ title = gets.chomp
 task_id = $1 if source_branch.match(/\At(\d+)_/)
 
 if task_id
-  note_text = "#{task_url_template % task_id}\n"
+  description = "#{task_url_template % task_id}\n"
 end
 
 print "Text:
-#{note_text}"
+#{description}"
 additional_text = STDIN.read.chomp
-note_text = (note_text.to_s + additional_text).chomp
+description = (description.to_s + additional_text).chomp
 
 puts "Going to create merge request with following data (blank note will not be created):"
 ap source_branch: source_branch,
    target_branch: target_branch,
    title: title,
-   note_text: note_text
+   description: description
 puts "Proceed? [Y/n]"
 answer = gets
 
@@ -72,12 +72,12 @@ case answer
 when nil,/[Nn]/
   puts "Merge request aborted"
 when "\n", /[Yy]/
-  mr = Gitlab.create_merge_request(
-       project_id,
-       title,
-       source_branch: source_branch,
-       target_branch: target_branch)
-  Gitlab.create_note("#{project_id}/merge_requests/#{mr.id}", note_text) unless note_text.empty?
+  options = {
+    source_branch: source_branch,
+    target_branch: target_branch,
+  }
+  options[:description] = description unless description.empty?
+  mr = Gitlab.create_merge_request(project_id, title, options)
   mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.id}"
   puts "Created merge request: #{mr_url}"
 end
