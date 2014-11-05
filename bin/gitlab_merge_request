@@ -77,7 +77,7 @@ when "\n", /[Yy]/
        title,
        source_branch: source_branch,
        target_branch: target_branch)
-  Gitlab.create_note("#{project_id}/merge_requests/#{mr.id}", note_text) unless note_text.blank?
+  Gitlab.create_note("#{project_id}/merge_requests/#{mr.id}", note_text) unless note_text.empty?
   mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.id}"
   puts "Created merge request: #{mr_url}"
 end
