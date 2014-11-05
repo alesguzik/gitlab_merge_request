@@ -3,7 +3,7 @@ require 'uri'
 require 'awesome_print'
 
 def git_config(key)
-  value = `git config --get #{key}`
+  value = `git config --get #{key}`.chomp
   if value.empty?
     value = yield(key)
     puts "Set #{key} = #{value}"
