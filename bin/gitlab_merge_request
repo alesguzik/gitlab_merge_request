@@ -78,6 +78,6 @@ when "\n", /[Yy]/
   }
   options[:description] = description unless description.empty?
   mr = Gitlab.create_merge_request(project_id, title, options)
-  mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.id}"
+  mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.iid}"
   puts "Created merge request: #{mr_url}"
 end
