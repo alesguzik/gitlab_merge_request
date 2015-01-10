@@ -80,4 +80,5 @@ when "\n", /[Yy]/
   mr = Gitlab.create_merge_request(project_id, title, options)
   mr_url = "#{Gitlab.project(project_id).web_url}/merge_requests/#{mr.iid}"
   puts "Created merge request: #{mr_url}"
+  system (ENV['BROWSER'] || 'xdg-open'), mr_url
 end
