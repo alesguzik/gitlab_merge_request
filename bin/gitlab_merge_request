@@ -39,8 +39,13 @@ target_branch = git_config 'gitlab.merge-request-target' do
   Gitlab.project(project_id).default_branch
 end
 
-task_url_template = git_config 'gitlab.task-url-template' do
-  "http://jira.softswiss.com/browse/CASINO-%s"
+task_url_template = git_config 'gitlab.task-url-template' do |key|
+  puts <<-EOF
+    Please run:
+      git config #{key} TASK_URL_TEMPLATE
+    Task url template should be of form "http://jira.example.com/browse/PROJECT-%s" (%s will be replaced with task id from branch name)
+  EOF
+  exit 1
 end
 
 print "Creating merge request.
