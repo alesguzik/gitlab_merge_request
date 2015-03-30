@@ -54,6 +54,9 @@ From: #{source_branch}
 To: #{target_branch}
 Title: "
 title = gets.chomp
+
+last_commit_message=`git log --format="%s" HEAD~1..HEAD`
+task_id = $1 if last_commit_message.match(/\A(\d+): /)
 task_id = $1 if source_branch.match(/\At(\d+)_/)
 
 if task_id
